@@ -2,10 +2,9 @@ package cert
 
 import (
 	"github.com/hypercheduler/utils"
-	"github.com/hypercheduler/utils/log"
 )
 
-var logger = log.GetLogger("cert", utils.VERSION)
+var logger = utils.GetLogger("cert", utils.VERSION)
 
 const _SignatureSepByte = byte(3)
 const _EncryptionSepByte = byte(10)
