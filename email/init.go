@@ -1,6 +1,9 @@
 package email
 
-import "github.com/hypercheduler/utils/log"
+import (
+	"github.com/hypercheduler/utils"
+	"github.com/hypercheduler/utils/log"
+)
 
 type Notifier struct {
 	User     string `json:"user"`
@@ -11,7 +14,7 @@ type Notifier struct {
 	ViaSSL bool
 }
 
-var logger = log.GetLogger("email")
+var logger = log.GetLogger("email", utils.VERSION)
 
 type NotifyError int
 

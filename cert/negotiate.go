@@ -2,6 +2,7 @@ package cert
 
 import (
 	"bytes"
+	"github.com/hypercheduler/utils"
 	"github.com/vmihailenco/msgpack/v5"
 	"time"
 )
@@ -9,6 +10,7 @@ import (
 func GenerateExchange(privateKey, PublicKey *bytes.Buffer, password []byte, exchangeInfo *ExchangeInfo) []byte {
 	exchangeInfo.PublicKey = PublicKey.Bytes()
 	exchangeInfo.Timestamp = time.Now().UnixNano()
+	exchangeInfo.UtilVersion = utils.VERSION
 
 	info, err := msgpack.Marshal(*exchangeInfo)
 	if err != nil {

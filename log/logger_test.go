@@ -5,7 +5,7 @@ import (
 )
 
 func TestLoggerNormalUse(t *testing.T) {
-	logger := GetLogger("test")
+	logger := GetLogger("test", "0.3")
 	logger.Info("this is a test")
 	logger.Error("this is an error")
 	logger.Warn("this is a warning")

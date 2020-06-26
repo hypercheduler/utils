@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func GetLogger(name string) *zap.Logger {
+func GetLogger(name, version string) *zap.Logger {
 	logger, found := loggerMap[name]
 	if found {
 		return logger
@@ -19,7 +19,7 @@ func GetLogger(name string) *zap.Logger {
 			Level:         defaultConfig.Level,
 			Encoding:      "json",
 			OutputPaths:   defaultConfig.Output,
-			InitialFields: map[string]interface{}{"label": name},
+			InitialFields: map[string]interface{}{"label": name, "version": version},
 			EncoderConfig: zapcore.EncoderConfig{
 				MessageKey:  "msg",
 				LevelKey:    "level",

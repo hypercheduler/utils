@@ -1,8 +1,11 @@
 package cert
 
-import "github.com/hypercheduler/utils/log"
+import (
+	"github.com/hypercheduler/utils"
+	"github.com/hypercheduler/utils/log"
+)
 
-var logger = log.GetLogger("cert")
+var logger = log.GetLogger("cert", utils.VERSION)
 
 const _SignatureSepByte = byte(3)
 const _EncryptionSepByte = byte(10)
@@ -12,4 +15,5 @@ type ExchangeInfo struct {
 	PublicKey []byte
 	ServerId  string
 	Timestamp int64
+	UtilVersion string
 }
