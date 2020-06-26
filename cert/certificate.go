@@ -34,7 +34,7 @@ func Generate(host string) (_key, _cert *bytes.Buffer) {
 	template := x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			Organization: []string{"hyper-scheduler"},
+			Organization: []string{"hypercheduler"},
 		},
 		NotBefore: notBefore,
 		NotAfter:  notAfter,
