@@ -2,6 +2,7 @@ package email
 
 import (
 	"github.com/hypercheduler/utils"
+	"github.com/hypercheduler/utils/log"
 )
 
 type Notifier struct {
@@ -13,7 +14,7 @@ type Notifier struct {
 	ViaSSL bool
 }
 
-var logger = utils.GetLogger("email", utils.VERSION)
+var logger = log.GetLogger("email", utils.VERSION)
 
 type NotifyError int
 

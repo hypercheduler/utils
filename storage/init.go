@@ -3,9 +3,10 @@ package storage
 import (
 	"github.com/etcd-io/bbolt"
 	"github.com/hypercheduler/utils"
+	"github.com/hypercheduler/utils/log"
 )
 
-var logger = utils.GetLogger("storage", utils.VERSION)
+var logger = log.GetLogger("storage", utils.VERSION)
 
 type Serializer struct {
 	Path string
