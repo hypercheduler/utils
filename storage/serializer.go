@@ -48,33 +48,61 @@ func (s *Serializer) Get(group, key []byte) (value []byte) {
 	return
 }
 
-func (s *Serializer) SearchKey(group, prefix []byte) (keyList [][]byte) {
+func (s *Serializer) SearchKey(group, shred []byte, fullSearch bool) (keyList [][]byte) {
 	if s.db.View(func(tx *bbolt.Tx) error {
 		cursor := tx.Bucket(group).Cursor()
-		for k, _ := cursor.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, _ = cursor.Next() {
-			keyList = append(keyList, k)
+		var k []byte
+		if fullSearch {
+			k, _ = cursor.First()
+		} else {
+			k, _ = cursor.Seek(shred)
+		}
+		for ; k != nil; k, _ = cursor.Next() {
+			if !fullSearch {
+				if bytes.HasPrefix(k, shred) {
+					keyList = append(keyList, k)
+				} else {
+					break
+				}
+			} else if bytes.Contains(k, shred) {
+				keyList = append(keyList, k)
+			}
 		}
 		return nil
 	}) != nil {
-		logger.Error("failed to search prefix",
+		logger.Error("failed to search shred",
 			zap.String("group", string(group)),
-			zap.String("prefix", string(prefix)))
+			zap.String("shred", string(shred)))
 	}
 	return
 }
 
-func (s *Serializer) SearchWithContent(group, prefix []byte) map[string][]byte {
+func (s *Serializer) SearchWithContent(group, shred []byte, fullSearch bool) map[string][]byte {
 	var result = make(map[string][]byte)
 	if s.db.View(func(tx *bbolt.Tx) error {
 		cursor := tx.Bucket(group).Cursor()
-		for k, v := cursor.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = cursor.Next() {
-			result[string(k)] = v
+		var k, v []byte
+		if fullSearch {
+			k, v = cursor.First()
+		} else {
+			k, v = cursor.Seek(shred)
+		}
+		for ; k != nil; k, v = cursor.Next() {
+			if !fullSearch {
+				if bytes.HasPrefix(k, shred) {
+					result[string(k)] = v
+				} else {
+					break
+				}
+			} else if bytes.Contains(k, shred) {
+				result[string(k)] = v
+			}
 		}
 		return nil
 	}) != nil {
 		logger.Error("failed to search with content",
 			zap.String("group", string(group)),
-			zap.String("prefix", string(prefix)))
+			zap.String("shred", string(shred)))
 	}
 	return result
 }

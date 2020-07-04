@@ -28,17 +28,41 @@ func TestSearch(t *testing.T) {
 	for k, v := range keyList {
 		s.Set(gName, []byte(k), []byte(v))
 	}
-	for _, v := range s.SearchKey(gName, []byte("h")) {
+
+	tests := []struct {
+		HasContent bool
+		Shred      string
+		FullSearch bool
+		Length     int
+	}{{false, "h", false, 3},
+		{false, "h", true, 3},
+		{false, "e", true, 1},
+		{false, "e", false, 0},
+		{false, "1", true, 2},
+		{true, "h", false, 3}}
+	for _, v := range tests {
+		var r int
+		if v.HasContent {
+			r = len(s.SearchWithContent(gName, []byte(v.Shred), v.FullSearch))
+		} else {
+			r = len(s.SearchKey(gName, []byte(v.Shred), v.FullSearch))
+		}
+		if r != v.Length {
+			t.Error("search count not match")
+		}
+	}
+	for _, v := range s.SearchKey(gName, []byte("h"), false) {
 		if keyList[string(v)] == "" {
 			t.Error("search error")
 		}
 	}
-	for k, v := range s.SearchWithContent(gName, []byte("h")) {
+	for k, v := range s.SearchWithContent(gName, []byte("h"), false) {
 		if keyList[k] != string(v) {
 			t.Error("search content not match")
 		}
 	}
-	if s.SearchKey(gName, []byte("H")) != nil {
+	if s.SearchKey(gName, []byte("H"), false) != nil {
 		t.Error("should be nothing to match")
 	}
+
 }
