@@ -12,12 +12,3 @@ type Serializer struct {
 	Path string
 	db   *bbolt.DB
 }
-
-type KeyValueSaver struct {
-	Serializer
-	GroupName string
-}
-
-type CommitSaver struct {
-	KeyValueSaver
-}
