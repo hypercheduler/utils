@@ -9,6 +9,7 @@ import (
 var logger = log.GetLogger("storage", utils.VERSION)
 
 type Serializer struct {
-	Path string
-	db   *bbolt.DB
+	Path    string
+	HasInit bool
+	db      *bbolt.DB
 }

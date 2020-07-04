@@ -18,6 +18,7 @@ func (s *Serializer) Initial(path string) (ok bool) {
 		return false
 	}
 	s.db = db
+	s.HasInit = true
 	return true
 }
 

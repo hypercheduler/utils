@@ -15,4 +15,5 @@ func TestSerializer(t *testing.T) {
 		string(s.Get([]byte("db1"), []byte("key"))) != "value" {
 		t.Error("failed to set kv")
 	}
+	s.Close()
 }
