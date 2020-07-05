@@ -39,7 +39,8 @@ func TestSearch(t *testing.T) {
 		{false, "e", true, 1},
 		{false, "e", false, 0},
 		{false, "1", true, 2},
-		{true, "h", false, 3}}
+		{true, "h", false, 3},
+		{true, "1", true, 2}}
 	for _, v := range tests {
 		var r int
 		if v.HasContent {
@@ -63,6 +64,19 @@ func TestSearch(t *testing.T) {
 	}
 	if s.SearchKey(gName, []byte("H"), false) != nil {
 		t.Error("should be nothing to match")
+	}
+
+	if s.Remove([]byte("A"), []byte("B")) || !s.Remove(gName, []byte("w")) {
+		t.Error("should fail")
+	}
+
+	if string(s.Get(gName, []byte("well"))) != "4" {
+		t.Error("should not change")
+	}
+	if s.Get([]byte("not exist"), []byte("key")) != nil ||
+		s.SearchWithContent([]byte("not exist"), []byte("A"), false) != nil ||
+		s.SearchKey([]byte("not exist"), []byte("A"), false) != nil {
+		t.Error("should fail")
 	}
 
 }

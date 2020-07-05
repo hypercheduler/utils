@@ -37,6 +37,10 @@ func (s *Serializer) Set(group, key, value []byte) bool {
 
 func (s *Serializer) Get(group, key []byte) (value []byte) {
 	if s.db.View(func(tx *bbolt.Tx) error {
+		bk := tx.Bucket(group)
+		if bk == nil {
+			return bbolt.ErrBucketNotFound
+		}
 		value = tx.Bucket(group).Get(key)
 		return nil
 	}) != nil {
@@ -48,8 +52,28 @@ func (s *Serializer) Get(group, key []byte) (value []byte) {
 	return
 }
 
+func (s *Serializer) Remove(group, key []byte) bool {
+	if s.db.Update(func(tx *bbolt.Tx) error {
+		bk := tx.Bucket(group)
+		if bk == nil {
+			return bbolt.ErrBucketNotFound
+		}
+		return bk.Delete(key)
+	}) != nil {
+		logger.Warn("failed to delete",
+			zap.String("group", string(group)),
+			zap.String("key", string(key)))
+		return false
+	}
+	return true
+}
+
 func (s *Serializer) SearchKey(group, shred []byte, fullSearch bool) (keyList [][]byte) {
 	if s.db.View(func(tx *bbolt.Tx) error {
+		bk := tx.Bucket(group)
+		if bk == nil {
+			return bbolt.ErrBucketNotFound
+		}
 		cursor := tx.Bucket(group).Cursor()
 		var k []byte
 		if fullSearch {
@@ -80,7 +104,11 @@ func (s *Serializer) SearchKey(group, shred []byte, fullSearch bool) (keyList []
 func (s *Serializer) SearchWithContent(group, shred []byte, fullSearch bool) map[string][]byte {
 	var result = make(map[string][]byte)
 	if s.db.View(func(tx *bbolt.Tx) error {
-		cursor := tx.Bucket(group).Cursor()
+		bk := tx.Bucket(group)
+		if bk == nil {
+			return bbolt.ErrBucketNotFound
+		}
+		cursor := bk.Cursor()
 		var k, v []byte
 		if fullSearch {
 			k, v = cursor.First()
@@ -103,6 +131,7 @@ func (s *Serializer) SearchWithContent(group, shred []byte, fullSearch bool) map
 		logger.Error("failed to search with content",
 			zap.String("group", string(group)),
 			zap.String("shred", string(shred)))
+		return nil
 	}
 	return result
 }
