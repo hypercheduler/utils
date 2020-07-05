@@ -10,27 +10,27 @@ import (
 	"strings"
 )
 
-func (self *Notifier) getAddress() string {
-	return fmt.Sprintf("%s:%d", self.SMTPHost, self.SMTPPort)
+func (n *Notifier) getAddress() string {
+	return fmt.Sprintf("%s:%d", n.SMTPHost, n.SMTPPort)
 }
 
 // validate smtp server connection & authorize & check ssl status
 // execute on every notifier change
-func (self *Notifier) Validate() NotifyError {
-	tlsConfig := &tls.Config{ServerName: self.SMTPHost}
-	address := self.getAddress()
-	self.ViaSSL = true
+func (n *Notifier) Validate() NotifyError {
+	tlsConfig := &tls.Config{ServerName: n.SMTPHost}
+	address := n.getAddress()
+	n.ViaSSL = true
 	tlsConn, err := tls.Dial("tcp", address, tlsConfig)
 	if err != nil {
 		// tls connection failed
-		self.ViaSSL = false
+		n.ViaSSL = false
 	}
 	defer func() {
 		_ = tlsConn.Close()
 	}()
 	client := &smtp.Client{}
-	if self.ViaSSL {
-		client, err = smtp.NewClient(tlsConn, self.SMTPHost)
+	if n.ViaSSL {
+		client, err = smtp.NewClient(tlsConn, n.SMTPHost)
 		if err != nil {
 			return ProtocolError
 		}
@@ -42,7 +42,7 @@ func (self *Notifier) Validate() NotifyError {
 		defer func() {
 			_ = conn.Close()
 		}()
-		client, err = smtp.NewClient(conn, self.SMTPHost)
+		client, err = smtp.NewClient(conn, n.SMTPHost)
 		if err != nil {
 			return ProtocolError
 		}
@@ -54,37 +54,37 @@ func (self *Notifier) Validate() NotifyError {
 	if client.Hello(hostname) != nil {
 		return ProtocolError
 	}
-	auth := smtp.PlainAuth("", self.User, self.Password, self.SMTPHost)
+	auth := smtp.PlainAuth("", n.User, n.Password, n.SMTPHost)
 	if client.Auth(auth) != nil {
 		return AuthorizeError
 	}
 	return NoError
 }
 
-func (self *Notifier) Send(title string, text string, notifyList []string, headers map[string]string) {
+func (n *Notifier) Send(title string, text string, notifyList []string, headers map[string]string) {
 	if title == "" || text == "" || len(notifyList) == 0 {
 		return
 	}
-	address := self.getAddress()
+	address := n.getAddress()
 	client := &smtp.Client{}
-	if !self.ViaSSL {
+	if !n.ViaSSL {
 		conn, err := net.Dial("tcp", address)
 		if err != nil {
 			logger.Error(err.Error())
 			return
 		}
-		client, err = smtp.NewClient(conn, self.SMTPHost)
+		client, err = smtp.NewClient(conn, n.SMTPHost)
 		if err != nil {
 			logger.Error(err.Error())
 			return
 		}
 	} else {
-		conn, err := tls.Dial("tcp", address, &tls.Config{ServerName: self.SMTPHost})
+		conn, err := tls.Dial("tcp", address, &tls.Config{ServerName: n.SMTPHost})
 		if err != nil {
 			logger.Error(err.Error())
 			return
 		}
-		client, err = smtp.NewClient(conn, self.SMTPHost)
+		client, err = smtp.NewClient(conn, n.SMTPHost)
 		if err != nil {
 			logger.Error(err.Error())
 			return
@@ -98,12 +98,12 @@ func (self *Notifier) Send(title string, text string, notifyList []string, heade
 		logger.Error("Server Hello Failed!")
 		return
 	}
-	auth := smtp.PlainAuth("", self.User, self.Password, self.SMTPHost)
+	auth := smtp.PlainAuth("", n.User, n.Password, n.SMTPHost)
 	if client.Auth(auth) != nil {
 		logger.Error("Server Auth Failed!")
 		return
 	}
-	if client.Mail(self.User) != nil {
+	if client.Mail(n.User) != nil {
 		logger.Error("Mail request Failed!")
 		return
 	}
@@ -114,7 +114,7 @@ func (self *Notifier) Send(title string, text string, notifyList []string, heade
 		}
 	}
 
-	headers["From"] = self.User
+	headers["From"] = n.User
 	headers["Subject"] = title
 	entity := "To: " + strings.Join(notifyList, ",") + "\r\n"
 

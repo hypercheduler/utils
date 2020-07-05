@@ -6,10 +6,10 @@ import (
 )
 
 type Notifier struct {
-	User     string `json:"user"`
-	Password string `json:"password"`
-	SMTPHost string `json:"host"`
-	SMTPPort int    `json:"port"`
+	User     string
+	Password string
+	SMTPHost string
+	SMTPPort int
 
 	ViaSSL bool
 }
