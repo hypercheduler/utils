@@ -14,7 +14,7 @@ type Notifier struct {
 	ViaSSL bool
 }
 
-var logger = log.GetLogger("email", utils.VERSION)
+var logger = log.GetLogger("utils-email", utils.VERSION)
 
 type NotifyError int
 
